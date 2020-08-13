@@ -227,7 +227,7 @@ const std::vector<MLDataType> castOpTypeConstraints{
   ONNX_CPU_OPERATOR_VERSIONED_TYPED_KERNEL(                                                                                        \
       Cast,                                                                                                                        \
       6,                                                                                                                           \
-      9,                                                                                                                           \
+      13,                                                                                                                          \
       in_type,                                                                                                                     \
       KernelDefBuilder().TypeConstraint("T1", DataTypeImpl::GetTensorType<in_type>()).TypeConstraint("T2", castOpTypeConstraints), \
       Cast<in_type>);                                                                                                              \
@@ -306,7 +306,7 @@ ADD_FROM_CAST_OP(double);
 ONNX_CPU_OPERATOR_VERSIONED_TYPED_KERNEL(
     Cast,
     6,
-    9,
+    13,
     MLFloat16,
     KernelDefBuilder().TypeConstraint("T1", DataTypeImpl::GetTensorType<MLFloat16>()).TypeConstraint("T2", castOpTypeConstraints),
     Cast<MLFloat16>);
@@ -372,9 +372,10 @@ Status Cast<MLFloat16>::Compute(OpKernelContext* context) const {
   return st;
 }
 
-ONNX_CPU_OPERATOR_TYPED_KERNEL(
+ONNX_CPU_OPERATOR_VERSIONED_TYPED_KERNEL(
     Cast,
     9,
+    13,
     string,
     KernelDefBuilder().TypeConstraint("T1", DataTypeImpl::GetTensorType<std::string>()).TypeConstraint("T2", castOpTypeConstraints),
     Cast<std::string>);
