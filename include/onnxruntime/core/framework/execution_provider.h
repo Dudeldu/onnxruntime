@@ -164,7 +164,7 @@ class IExecutionProvider {
   virtual common::Status OnSessionInitializationEnd();
 
   void InsertAllocator(AllocatorPtr allocator);
-  void InsertAllocatorHelper(AllocatorPtr allocator, bool allow_overwrite);
+  void UpdateAllocator(AllocatorPtr allocator);
 
   /**
   Given a list of fused_node, return create_state/compute/release_state func for each node.

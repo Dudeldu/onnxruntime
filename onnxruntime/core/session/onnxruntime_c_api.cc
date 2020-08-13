@@ -638,7 +638,7 @@ ORT_API_STATUS_IMPL(OrtApis::GetBoundOutputNames, _In_ const OrtIoBinding* bindi
 }
 
 ORT_API_STATUS_IMPL(OrtApis::GetBoundOutputValues, _In_ const OrtIoBinding* binding_ptr, _In_ OrtAllocator* allocator,
-                   _Out_writes_all_(output_count) OrtValue*** output, _Out_ size_t* output_count) {
+                    _Out_writes_all_(output_count) OrtValue*** output, _Out_ size_t* output_count) {
   API_IMPL_BEGIN
   const auto& outputs = binding_ptr->binding_->GetOutputs();
   if (outputs.empty()) {
@@ -650,15 +650,15 @@ ORT_API_STATUS_IMPL(OrtApis::GetBoundOutputValues, _In_ const OrtIoBinding* bind
   // Used to destroy and de-allocate on exception
   size_t created = 0;
   IAllocatorUniquePtr<OrtValue*> ortvalues_alloc(reinterpret_cast<OrtValue**>(allocator->Alloc(allocator, outputs.size() * sizeof(OrtValue*))),
-                                                [&created, allocator](OrtValue** buffer) { 
-                                                 if (buffer) {
-                                                    while (created > 0) {
-                                                     auto p = buffer + --created;
-                                                      delete (*p);
-                                                    }
-                                                    allocator->Free(allocator, buffer);
-                                                  }
-                                                });
+                                                 [&created, allocator](OrtValue** buffer) {
+                                                   if (buffer) {
+                                                     while (created > 0) {
+                                                       auto p = buffer + --created;
+                                                       delete (*p);
+                                                     }
+                                                     allocator->Free(allocator, buffer);
+                                                   }
+                                                 });
 
   if (!ortvalues_alloc) {
     return OrtApis::CreateStatus(ORT_FAIL, "Output buffer allocation failed");
@@ -679,13 +679,28 @@ ORT_API_STATUS_IMPL(OrtApis::GetBoundOutputValues, _In_ const OrtIoBinding* bind
   API_IMPL_END
 }
 
-
 ORT_API(void, OrtApis::ClearBoundInputs, _Inout_ OrtIoBinding* binding_ptr) {
   binding_ptr->binding_->ClearInputs();
 }
 
 ORT_API(void, OrtApis::ClearBoundOutputs, _Inout_ OrtIoBinding* binding_ptr) {
   binding_ptr->binding_->ClearOutputs();
+}
+
+ORT_API_STATUS_IMPL(OrtApis::CreateSharedAllocator, _In_ const OrtMemoryInfo* mem_info, _In_ const OrtArenaCfg* arena_cfg,
+                    _Outptr_ OrtAllocator** out) {
+  ORT_UNUSED_PARAMETER(mem_info);
+  ORT_UNUSED_PARAMETER(arena_cfg);
+  ORT_UNUSED_PARAMETER(out);
+  return nullptr;
+}
+
+ORT_API_STATUS_IMPL(OrtApis::AddSharedAllocator, _Inout_ OrtEnv* env, _Inout_ OrtAllocator* allocator) {
+  onnxruntime::Status status = env->AddSharedAllocator(allocator);
+  if (!status.IsOK()) {
+    return ToOrtStatus(status);
+  }
+  return nullptr;
 }
 
 ORT_API_STATUS_IMPL(OrtApis::IsTensor, _In_ const OrtValue* value, _Out_ int* out) {
@@ -799,7 +814,7 @@ ORT_API_STATUS_IMPL(OrtApis::GetStringTensorElement, _In_ const OrtValue* value,
 
   size_t ret = input[index].size();
   if (s_len < ret) {
-    return OrtApis::CreateStatus(ORT_FAIL,"buffer size is too small for string");
+    return OrtApis::CreateStatus(ORT_FAIL, "buffer size is too small for string");
   }
 
   memcpy(s, input[index].data(), input[index].size());
@@ -1847,6 +1862,9 @@ static constexpr OrtApi ort_api_1_to_4 = {
     &OrtApis::GetBoundOutputValues,
     &OrtApis::ClearBoundInputs,
     &OrtApis::ClearBoundOutputs,
+
+    &OrtApis::CreateSharedAllocator,
+    &OrtApis::AddSharedAllocator,
 
 };
 

@@ -101,3 +101,8 @@ onnxruntime::logging::LoggingManager* OrtEnv::GetLoggingManager() const {
 void OrtEnv::SetLoggingManager(std::unique_ptr<onnxruntime::logging::LoggingManager> logging_manager) {
   value_->SetLoggingManager(std::move(logging_manager));
 }
+
+onnxruntime::Status OrtEnv::AddSharedAllocator(OrtAllocator* allocator) {
+  auto status = value_->AddSharedAllocator(allocator);
+  return status;
+}

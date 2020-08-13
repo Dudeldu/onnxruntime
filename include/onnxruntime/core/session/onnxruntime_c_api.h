@@ -133,6 +133,11 @@ typedef enum OrtErrorCode {
   ORT_EP_FAIL,
 } OrtErrorCode;
 
+typedef struct OrtArenaCfg {
+  int initial_chunk_size_bytes;
+  int max_dead_bytes_per_chunk;
+} OrtArenaCfg;
+
 #define ORT_RUNTIME_CLASS(X) \
   struct Ort##X;             \
   typedef struct Ort##X Ort##X;
@@ -959,6 +964,10 @@ struct OrtApi {
    */
   void(ORT_API_CALL* ClearBoundInputs)(_Inout_ OrtIoBinding* binding_ptr) NO_EXCEPTION ORT_ALL_ARGS_NONNULL;
   void(ORT_API_CALL* ClearBoundOutputs)(_Inout_ OrtIoBinding* binding_ptr) NO_EXCEPTION ORT_ALL_ARGS_NONNULL;
+
+  ORT_API2_STATUS(CreateSharedAllocator, _In_ const OrtMemoryInfo* mem_info, _In_ const OrtArenaCfg* arena_cfg,
+                  _Outptr_ OrtAllocator** out);
+  ORT_API2_STATUS(AddSharedAllocator, _Inout_ OrtEnv* env, _Inout_ OrtAllocator* allocator);
 };
 
 /*

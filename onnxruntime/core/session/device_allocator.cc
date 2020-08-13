@@ -9,9 +9,8 @@
 #include <assert.h>
 
 struct OrtAllocatorForDevice : public OrtAllocator {
-
-  explicit OrtAllocatorForDevice(onnxruntime::AllocatorPtr&& dev_allocator) 
-    : device_allocator_(std::move(dev_allocator)) {
+  explicit OrtAllocatorForDevice(onnxruntime::AllocatorPtr&& dev_allocator)
+      : device_allocator_(std::move(dev_allocator)) {
     OrtAllocator::version = ORT_API_VERSION;
     OrtAllocator::Alloc = [](OrtAllocator* this_, size_t size) { return static_cast<OrtAllocatorForDevice*>(this_)->Alloc(size); };
     OrtAllocator::Free = [](OrtAllocator* this_, void* p) { static_cast<OrtAllocatorForDevice*>(this_)->Free(p); };
@@ -41,7 +40,7 @@ struct OrtAllocatorForDevice : public OrtAllocator {
 #define API_IMPL_BEGIN try {
 #define API_IMPL_END                                                \
   }                                                                 \
-  catch (const std::exception& ex) {                                     \
+  catch (const std::exception& ex) {                                \
     return OrtApis::CreateStatus(ORT_RUNTIME_EXCEPTION, ex.what()); \
   }
 
